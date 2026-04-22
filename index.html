@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>切瓜切菜小游戏</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 游戏开始界面 -->
+        <div class="start-screen" v-if="gameState === 'start'">
+            <h1>🍉 切瓜切菜小游戏 🥕</h1>
+            <p>点击屏幕上的水果蔬菜来获得积分！</p>
+            <p>⚠️ 小心地雷！踩到会死亡</p>
+            <p>⚠️ 漏掉20个水果蔬菜也会触发死亡</p>
+            <p>💡 复活期间双击屏幕可以继续游戏</p>
+            <button @click="startGame" class="start-btn">开始游戏</button>
+        </div>
+
+        <!-- 游戏主界面 -->
+        <div 
+            class="game-container" 
+            v-else 
+            :class="{ 'revive-mode': gameState === 'revive' }"
+            @click="handleClick"
+            @dblclick="handleDoubleClick"
+            ref="gameContainer"
+        >
+            <!-- 游戏状态栏 -->
+            <div class="game-header">
+                <div class="score">积分: {{ score }}</div>
+                <div class="missed">漏掉: {{ missedCount }}/20</div>
+                <div class="game-controls">
+                    <button @click.stop="pauseGame" v-if="gameState === 'playing'">暂停</button>
+                    <button @click.stop="resumeGame" v-if="gameState === 'paused'">继续</button>
+                </div>
+            </div>
+
+            <!-- 复活倒计时 -->
+            <div class="revive-overlay" v-if="gameState === 'revive'">
+                <div class="revive-text">
+                    <h2>⚡ 复活倒计时: {{ reviveTimer }}秒</h2>
+                    <p>双击屏幕继续游戏！</p>
+                </div>
+            </div>
+
+            <!-- 游戏结束界面 -->
+            <div class="game-over-overlay" v-if="gameState === 'gameOver'">
+                <div class="game-over-text">
+                    <h2>💀 游戏结束</h2>
+                    <p>最终积分: {{ score }}</p>
+                    <button @click.stop="startGame" class="restart-btn">重新开始</button>
+                </div>
+            </div>
+
+            <!-- 暂停界面 -->
+            <div class="pause-overlay" v-if="gameState === 'paused'">
+                <div class="pause-text">
+                    <h2>⏸️ 游戏暂停</h2>
+                    <button @click.stop="resumeGame" class="resume-btn">继续游戏</button>
+                </div>
+            </div>
+
+            <!-- 游戏物品（水果蔬菜和地雷） -->
+            <div 
+                v-for="item in items" 
+                :key="item.id" 
+                class="game-item"
+                :class="item.type"
+                :style="{
+                    left: item.x + 'px',
+                    top: item.y + 'px',
+                    width: item.size + 'px',
+                    height: item.size + 'px'
+                }"
+            >
+                <span class="item-emoji">{{ item.emoji }}</span>
+            </div>
+
+            <!-- 切中效果 -->
+            <div 
+                v-for="effect in cutEffects" 
+                :key="effect.id" 
+                class="cut-effect"
+                :style="{
+                    left: effect.x + 'px',
+                    top: effect.y + 'px'
+                }"
+            >
+                <span class="effect-text">+{{ effect.points }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入 Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
