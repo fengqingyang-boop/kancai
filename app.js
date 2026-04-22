@@ -10,7 +10,6 @@ createApp({
         const cutEffects = ref([]);
         const reviveTimer = ref(30);
         const gameContainer = ref(null);
-        const flashBackgroundColor = ref('');
         
         // 闪烁颜色数组（红、橙、黄、绿、紫）
         const FLASH_COLORS = [
@@ -21,6 +20,10 @@ createApp({
             '#8a2be2'  // 紫色
         ];
         
+        // 保存原始背景颜色
+        let originalBodyBackgroundColor = '';
+        let originalContainerBackgroundColor = '';
+        
         // 游戏配置
         const GAME_CONFIG = {
             itemSpawnInterval: 800, // 物品生成间隔（毫秒）
@@ -29,7 +32,7 @@ createApp({
             bombChance: 0.15, // 地雷出现概率
             maxMissed: 20, // 最大漏掉数量
             reviveTime: 30, // 复活倒计时（秒）
-            flashDuration: 2000, // 每次颜色闪烁持续时间
+            flashDuration: 2000, // 每次颜色闪烁持续时间（毫秒）
             difficultyIncreaseInterval: 10000, // 难度增加间隔（毫秒）
         };
         
@@ -79,24 +82,70 @@ createApp({
             return FLASH_COLORS[randomIndex];
         }
         
-        // 启动背景颜色闪烁
+        // 保存原始背景颜色
+        function saveOriginalBackgrounds() {
+            originalBodyBackgroundColor = document.body.style.backgroundColor || '';
+            if (gameContainer.value) {
+                const computedStyle = window.getComputedStyle(gameContainer.value);
+                originalContainerBackgroundColor = computedStyle.backgroundColor || '';
+            }
+        }
+        
+        // 启动背景颜色闪烁 - 直接操作DOM
         function startBackgroundFlash() {
-            // 立即设置第一个颜色
-            flashBackgroundColor.value = getRandomFlashColor();
+            // 保存原始背景
+            saveOriginalBackgrounds();
             
-            // 每2秒切换一次颜色
+            // 禁用所有过渡效果
+            document.body.style.transition = 'none !important';
+            if (gameContainer.value) {
+                gameContainer.value.style.transition = 'none !important';
+            }
+            
+            // 立即设置第一个随机颜色
+            const firstColor = getRandomFlashColor();
+            setFlashBackgroundColor(firstColor);
+            
+            // 每2秒切换一次随机颜色
             flashTimer = setInterval(() => {
-                flashBackgroundColor.value = getRandomFlashColor();
+                const randomColor = getRandomFlashColor();
+                setFlashBackgroundColor(randomColor);
             }, GAME_CONFIG.flashDuration);
         }
         
-        // 停止背景颜色闪烁
+        // 设置闪烁背景颜色
+        function setFlashBackgroundColor(color) {
+            // 同时设置 body 和游戏容器的背景颜色
+            document.body.style.backgroundColor = color;
+            document.body.style.backgroundImage = 'none';
+            
+            if (gameContainer.value) {
+                gameContainer.value.style.backgroundColor = color;
+                gameContainer.value.style.backgroundImage = 'none';
+            }
+            
+            // 强制重绘，确保颜色立即变化
+            void document.body.offsetWidth;
+        }
+        
+        // 停止背景颜色闪烁 - 恢复原始背景
         function stopBackgroundFlash() {
             if (flashTimer) {
                 clearInterval(flashTimer);
                 flashTimer = null;
             }
-            flashBackgroundColor.value = '';
+            
+            // 恢复 body 原始背景
+            document.body.style.backgroundColor = originalBodyBackgroundColor;
+            document.body.style.backgroundImage = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            document.body.style.transition = '';
+            
+            // 恢复游戏容器原始背景
+            if (gameContainer.value) {
+                gameContainer.value.style.backgroundColor = '';
+                gameContainer.value.style.backgroundImage = 'linear-gradient(180deg, #87CEEB 0%, #98FB98 100%)';
+                gameContainer.value.style.transition = '';
+            }
         }
         
         // 获取随机物品
@@ -204,6 +253,9 @@ createApp({
             
             // 清除所有现有计时器
             stopAllTimers();
+            
+            // 确保背景恢复正常
+            stopBackgroundFlash();
             
             // 启动新的游戏循环
             nextTick(() => {
@@ -316,7 +368,7 @@ createApp({
                 difficultyTimer = null;
             }
             
-            // 启动背景颜色闪烁
+            // 启动背景颜色闪烁 - 这是关键！
             startBackgroundFlash();
             
             // 开始复活倒计时
@@ -343,7 +395,7 @@ createApp({
                 reviveTimerInterval = null;
             }
             
-            // 停止背景颜色闪烁
+            // 停止背景颜色闪烁 - 恢复原始背景
             stopBackgroundFlash();
             
             // 重置状态
@@ -391,7 +443,8 @@ createApp({
         
         // 组件挂载时
         onMounted(() => {
-            // 游戏初始化
+            // 保存初始背景
+            saveOriginalBackgrounds();
         });
         
         // 组件卸载时
@@ -407,7 +460,6 @@ createApp({
             cutEffects,
             reviveTimer,
             gameContainer,
-            flashBackgroundColor,
             startGame,
             pauseGame,
             resumeGame,

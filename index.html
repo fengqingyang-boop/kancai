@@ -21,9 +21,7 @@
         <!-- 游戏主界面 -->
         <div 
             class="game-container" 
-            v-else 
-            :class="{ 'revive-mode': gameState === 'revive' }"
-            :style="flashBackgroundColor ? { backgroundColor: flashBackgroundColor } : {}"
+            v-else
             @click="handleClick"
             @dblclick="handleDoubleClick"
             ref="gameContainer"
@@ -38,12 +36,10 @@
                 </div>
             </div>
 
-            <!-- 复活倒计时 -->
-            <div class="revive-overlay" v-if="gameState === 'revive'">
-                <div class="revive-text">
-                    <h2>⚡ 复活倒计时: {{ reviveTimer }}秒</h2>
-                    <p>双击屏幕继续游戏！</p>
-                </div>
+            <!-- 复活倒计时文字容器 - 不遮挡整个背景 -->
+            <div class="revive-text-container" v-if="gameState === 'revive'">
+                <h2>⚡ 复活倒计时: {{ reviveTimer }}秒</h2>
+                <p>双击屏幕继续游戏！</p>
             </div>
 
             <!-- 游戏结束界面 -->

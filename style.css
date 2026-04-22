@@ -6,9 +6,10 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: none !important;
 }
 
 #app {
@@ -29,6 +30,7 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     max-width: 500px;
     width: 90%;
+    z-index: 2000;
 }
 
 .start-screen h1 {
@@ -69,10 +71,6 @@ body {
     background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%);
     overflow: hidden;
     cursor: crosshair;
-}
-
-.game-container.revive-mode {
-    transition: background-color 0.1s;
 }
 
 /* 游戏头部 */
@@ -184,8 +182,74 @@ body {
     }
 }
 
-/* 覆盖层样式 */
-.revive-overlay, .game-over-overlay, .pause-overlay {
+/* 复活状态 - 不使用半透明覆盖层，直接在游戏容器上显示文字 */
+.revive-text-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 40px;
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.revive-text-container h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #ffcc00;
+    animation: textPulse 0.5s infinite;
+}
+
+.revive-text-container p {
+    font-size: 1.2rem;
+}
+
+@keyframes textPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* 游戏结束界面 */
+.game-over-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.game-over-text {
+    text-align: center;
+    color: white;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 40px;
+    border-radius: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.game-over-text h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: #ff4444;
+}
+
+.game-over-text p {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+/* 暂停界面 */
+.pause-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -198,36 +262,13 @@ body {
     z-index: 1000;
 }
 
-.revive-text, .game-over-text, .pause-text {
+.pause-text {
     text-align: center;
     color: white;
     background: rgba(0, 0, 0, 0.5);
     padding: 40px;
     border-radius: 20px;
     border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.revive-text h2 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    color: #ffcc00;
-    animation: textPulse 0.5s infinite;
-}
-
-@keyframes textPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-.game-over-text h2 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    color: #ff4444;
-}
-
-.game-over-text p {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
 }
 
 .pause-text h2 {
