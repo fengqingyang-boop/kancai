@@ -10,6 +10,16 @@ createApp({
         const cutEffects = ref([]);
         const reviveTimer = ref(30);
         const gameContainer = ref(null);
+        const flashBackgroundColor = ref('');
+        
+        // 闪烁颜色数组（红、橙、黄、绿、紫）
+        const FLASH_COLORS = [
+            '#ff0000', // 红色
+            '#ff8c00', // 橙色
+            '#ffff00', // 黄色
+            '#00ff00', // 绿色
+            '#8a2be2'  // 紫色
+        ];
         
         // 游戏配置
         const GAME_CONFIG = {
@@ -57,10 +67,37 @@ createApp({
         let spawnTimer = null;
         let reviveTimerInterval = null;
         let difficultyTimer = null;
+        let flashTimer = null;
         let itemIdCounter = 0;
         let effectIdCounter = 0;
         let currentSpeed = GAME_CONFIG.itemSpeed;
         let currentSpawnInterval = GAME_CONFIG.itemSpawnInterval;
+        
+        // 随机获取一个闪烁颜色
+        function getRandomFlashColor() {
+            const randomIndex = Math.floor(Math.random() * FLASH_COLORS.length);
+            return FLASH_COLORS[randomIndex];
+        }
+        
+        // 启动背景颜色闪烁
+        function startBackgroundFlash() {
+            // 立即设置第一个颜色
+            flashBackgroundColor.value = getRandomFlashColor();
+            
+            // 每2秒切换一次颜色
+            flashTimer = setInterval(() => {
+                flashBackgroundColor.value = getRandomFlashColor();
+            }, GAME_CONFIG.flashDuration);
+        }
+        
+        // 停止背景颜色闪烁
+        function stopBackgroundFlash() {
+            if (flashTimer) {
+                clearInterval(flashTimer);
+                flashTimer = null;
+            }
+            flashBackgroundColor.value = '';
+        }
         
         // 获取随机物品
         function getRandomItem() {
@@ -279,6 +316,9 @@ createApp({
                 difficultyTimer = null;
             }
             
+            // 启动背景颜色闪烁
+            startBackgroundFlash();
+            
             // 开始复活倒计时
             startReviveTimer();
         }
@@ -302,6 +342,9 @@ createApp({
                 clearInterval(reviveTimerInterval);
                 reviveTimerInterval = null;
             }
+            
+            // 停止背景颜色闪烁
+            stopBackgroundFlash();
             
             // 重置状态
             if (missedCount.value >= GAME_CONFIG.maxMissed) {
@@ -342,6 +385,8 @@ createApp({
                 clearInterval(difficultyTimer);
                 difficultyTimer = null;
             }
+            // 停止背景颜色闪烁
+            stopBackgroundFlash();
         }
         
         // 组件挂载时
@@ -362,6 +407,7 @@ createApp({
             cutEffects,
             reviveTimer,
             gameContainer,
+            flashBackgroundColor,
             startGame,
             pauseGame,
             resumeGame,

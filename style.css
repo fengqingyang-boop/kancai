@@ -72,15 +72,7 @@ body {
 }
 
 .game-container.revive-mode {
-    animation: colorFlash 2s infinite;
-}
-
-@keyframes colorFlash {
-    0%, 100% { background-color: #ff0000; }
-    20% { background-color: #ff8c00; }
-    40% { background-color: #ffff00; }
-    60% { background-color: #00ff00; }
-    80% { background-color: #8a2be2; }
+    transition: background-color 0.1s;
 }
 
 /* 游戏头部 */

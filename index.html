@@ -23,6 +23,7 @@
             class="game-container" 
             v-else 
             :class="{ 'revive-mode': gameState === 'revive' }"
+            :style="flashBackgroundColor ? { backgroundColor: flashBackgroundColor } : {}"
             @click="handleClick"
             @dblclick="handleDoubleClick"
             ref="gameContainer"
